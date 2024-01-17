@@ -2,6 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
+import { UserManager } from "./managers/UserManager.js";
 
 const app = express();
 
@@ -25,8 +26,6 @@ const io = new Server(server, {
   },
 });
 
-const secretKey = "fgdhfdsvhjv";
-
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
@@ -49,10 +48,14 @@ app.get("/", (req, res) => {
 //   });
 // });
 
+const userManager = new UserManager();
+
 io.on("connection", (socket) => {
   console.log("User connected", socket.id);
+  userManager.addUser("RandomUser", socket);
 
   socket.on("disconnect", () => {
+    userManager.removeUser(socket.id);
     console.log("User Disconnected", socket.id);
   });
 });
